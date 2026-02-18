@@ -17,6 +17,8 @@ import { AnalyticsModule } from './analytics/analytics.module'
 import { GrowthToolsModule } from './growth-tools/growth-tools.module'
 import { BillingModule } from './billing/billing.module'
 import { TeamModule } from './team/team.module'
+import { PublicApiModule } from './public-api/public-api.module'
+import { IntegrationsModule } from './integrations/integrations.module'
 
 @Module({
   imports: [
@@ -41,6 +43,8 @@ import { TeamModule } from './team/team.module'
     GrowthToolsModule,
     BillingModule,
     TeamModule,
+    PublicApiModule,
+    IntegrationsModule,
   ],
 })
 export class AppModule {}

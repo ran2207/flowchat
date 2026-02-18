@@ -12,6 +12,7 @@ import {
   Send,
   Zap,
   Brain,
+  Plug,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -24,6 +25,7 @@ const navigation = [
   { name: 'Sequences', href: '/sequences', icon: Zap },
   { name: 'AI', href: '/ai', icon: Brain },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Integrations', href: '/integrations', icon: Plug },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
