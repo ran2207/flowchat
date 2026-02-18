@@ -11,6 +11,8 @@ import { GatewayModule } from './gateway/gateway.module'
 import { ConversationsModule } from './conversations/conversations.module'
 import { ContactsModule } from './contacts/contacts.module'
 import { AiModule } from './ai/ai.module'
+import { BroadcastsModule } from './broadcasts/broadcasts.module'
+import { SequencesModule } from './sequences/sequences.module'
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { AiModule } from './ai/ai.module'
     ConversationsModule,
     ContactsModule,
     AiModule,
+    BroadcastsModule,
+    SequencesModule,
   ],
 })
 export class AppModule {}
