@@ -13,6 +13,8 @@ import { ContactsModule } from './contacts/contacts.module'
 import { AiModule } from './ai/ai.module'
 import { BroadcastsModule } from './broadcasts/broadcasts.module'
 import { SequencesModule } from './sequences/sequences.module'
+import { AnalyticsModule } from './analytics/analytics.module'
+import { GrowthToolsModule } from './growth-tools/growth-tools.module'
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { SequencesModule } from './sequences/sequences.module'
     AiModule,
     BroadcastsModule,
     SequencesModule,
+    AnalyticsModule,
+    GrowthToolsModule,
   ],
 })
 export class AppModule {}
