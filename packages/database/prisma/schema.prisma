@@ -1,0 +1,442 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// Tenants (Businesses using the platform)
+// ============================================================================
+
+model Tenant {
+  id                 String   @id @default(uuid())
+  name               String   @db.VarChar(255)
+  slug               String   @unique @db.VarChar(100)
+  plan               String   @default("free") @db.VarChar(50)
+  settings           Json     @default("{}")
+  subscriptionStatus String   @default("active") @map("subscription_status") @db.VarChar(20)
+  stripeCustomerId   String?  @map("stripe_customer_id") @db.VarChar(255)
+  messagesUsedMonth  Int      @default(0) @map("messages_used_month")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+
+  users                  User[]
+  channels               Channel[]
+  contacts               Contact[]
+  tags                   Tag[]
+  customFieldDefinitions CustomFieldDefinition[]
+  conversations          Conversation[]
+  messages               Message[]
+  flows                  Flow[]
+  flowExecutions         FlowExecution[]
+  sequences              Sequence[]
+  broadcasts             Broadcast[]
+  analyticsEvents        AnalyticsEvent[]
+  mediaFiles             MediaFile[]
+
+  @@index([slug])
+  @@map("tenants")
+}
+
+// ============================================================================
+// Users (Team members / Agents)
+// ============================================================================
+
+model User {
+  id           String    @id @default(uuid())
+  tenantId     String    @map("tenant_id")
+  email        String    @db.VarChar(255)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  firstName    String?   @map("first_name") @db.VarChar(100)
+  lastName     String?   @map("last_name") @db.VarChar(100)
+  role         String    @default("agent") @db.VarChar(20)
+  avatarUrl    String?   @map("avatar_url") @db.VarChar(500)
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  tenant                Tenant         @relation(fields: [tenantId], references: [id])
+  assignedConversations Conversation[] @relation("AssignedAgent")
+  agentMessages         Message[]      @relation("AgentMessages")
+  createdFlows          Flow[]         @relation("FlowCreatedBy")
+  updatedFlows          Flow[]         @relation("FlowUpdatedBy")
+  publishedVersions     FlowVersion[]
+  createdBroadcasts     Broadcast[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@map("users")
+}
+
+// ============================================================================
+// Channels (Connected platform accounts)
+// ============================================================================
+
+model Channel {
+  id                String   @id @default(uuid())
+  tenantId          String   @map("tenant_id")
+  platform          String   @db.VarChar(50)
+  platformAccountId String   @map("platform_account_id") @db.VarChar(255)
+  name              String   @db.VarChar(255)
+  credentials       Json     @default("{}")
+  webhookSecret     String?  @map("webhook_secret") @db.VarChar(255)
+  status            String   @default("active") @db.VarChar(20)
+  settings          Json     @default("{}")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  contacts      Contact[]
+  conversations Conversation[]
+  broadcasts    Broadcast[]
+
+  @@unique([tenantId, platform, platformAccountId])
+  @@index([tenantId])
+  @@index([platform, platformAccountId])
+  @@map("channels")
+}
+
+// ============================================================================
+// Contacts (End users / Subscribers)
+// ============================================================================
+
+model Contact {
+  id                String    @id @default(uuid())
+  tenantId          String    @map("tenant_id")
+  channelId         String?   @map("channel_id")
+  platform          String    @db.VarChar(50)
+  platformUserId    String    @map("platform_user_id") @db.VarChar(255)
+  firstName         String?   @map("first_name") @db.VarChar(100)
+  lastName          String?   @map("last_name") @db.VarChar(100)
+  email             String?   @db.VarChar(255)
+  phone             String?   @db.VarChar(50)
+  avatarUrl         String?   @map("avatar_url") @db.VarChar(500)
+  locale            String?   @db.VarChar(10)
+  timezone          String?   @db.VarChar(50)
+  customFields      Json      @default("{}") @map("custom_fields")
+  systemFields      Json      @default("{}") @map("system_fields")
+  isSubscribed      Boolean   @default(true) @map("is_subscribed")
+  subscribedAt      DateTime? @map("subscribed_at")
+  unsubscribedAt    DateTime? @map("unsubscribed_at")
+  lastInteractionAt DateTime? @map("last_interaction_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
+  channel        Channel?            @relation(fields: [channelId], references: [id])
+  contactTags    ContactTag[]
+  conversations  Conversation[]
+  messages       Message[]
+  flowExecutions FlowExecution[]
+  sequenceSubs   SequenceSubscription[]
+
+  @@unique([tenantId, platform, platformUserId])
+  @@index([tenantId])
+  @@index([platform, platformUserId])
+  @@index([tenantId, email])
+  @@map("contacts")
+}
+
+// ============================================================================
+// Tags
+// ============================================================================
+
+model Tag {
+  id        String   @id @default(uuid())
+  tenantId  String   @map("tenant_id")
+  name      String   @db.VarChar(100)
+  color     String?  @db.VarChar(7)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant      Tenant       @relation(fields: [tenantId], references: [id])
+  contactTags ContactTag[]
+
+  @@unique([tenantId, name])
+  @@map("tags")
+}
+
+model ContactTag {
+  contactId String   @map("contact_id")
+  tagId     String   @map("tag_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([contactId, tagId])
+  @@index([tagId])
+  @@map("contact_tags")
+}
+
+// ============================================================================
+// Custom Field Definitions
+// ============================================================================
+
+model CustomFieldDefinition {
+  id         String   @id @default(uuid())
+  tenantId   String   @map("tenant_id")
+  name       String   @db.VarChar(100)
+  fieldKey   String   @map("field_key") @db.VarChar(100)
+  type       String   @db.VarChar(20)
+  options    Json?
+  isRequired Boolean  @default(false) @map("is_required")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, fieldKey])
+  @@map("custom_field_definitions")
+}
+
+// ============================================================================
+// Conversations
+// ============================================================================
+
+model Conversation {
+  id                 String    @id @default(uuid())
+  tenantId           String    @map("tenant_id")
+  contactId          String    @map("contact_id")
+  channelId          String    @map("channel_id")
+  assignedAgentId    String?   @map("assigned_agent_id")
+  status             String    @default("new") @db.VarChar(20)
+  priority           String    @default("normal") @db.VarChar(10)
+  subject            String?   @db.VarChar(255)
+  lastMessageAt      DateTime? @map("last_message_at")
+  lastMessagePreview String?   @map("last_message_preview") @db.VarChar(255)
+  unreadCount        Int       @default(0) @map("unread_count")
+  metadata           Json      @default("{}")
+  openedAt           DateTime  @default(now()) @map("opened_at")
+  resolvedAt         DateTime? @map("resolved_at")
+  closedAt           DateTime? @map("closed_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  contact       Contact  @relation(fields: [contactId], references: [id])
+  channel       Channel  @relation(fields: [channelId], references: [id])
+  assignedAgent User?    @relation("AssignedAgent", fields: [assignedAgentId], references: [id])
+  messages      Message[]
+
+  @@index([tenantId, status])
+  @@index([contactId])
+  @@index([assignedAgentId, status])
+  @@index([tenantId, lastMessageAt(sort: Desc)])
+  @@map("conversations")
+}
+
+// ============================================================================
+// Messages
+// ============================================================================
+
+model Message {
+  id                String   @id @default(uuid())
+  tenantId          String   @map("tenant_id")
+  conversationId    String   @map("conversation_id")
+  contactId         String?  @map("contact_id")
+  agentId           String?  @map("agent_id")
+  direction         String   @db.VarChar(10)
+  content           Json
+  platformMessageId String?  @map("platform_message_id") @db.VarChar(255)
+  status            String   @default("sent") @db.VarChar(20)
+  errorMessage      String?  @map("error_message") @db.VarChar(500)
+  metadata          Json     @default("{}")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id])
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  contact      Contact?     @relation(fields: [contactId], references: [id])
+  agent        User?        @relation("AgentMessages", fields: [agentId], references: [id])
+
+  @@index([conversationId, createdAt(sort: Desc)])
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@index([platformMessageId])
+  @@map("messages")
+}
+
+// ============================================================================
+// Flows
+// ============================================================================
+
+model Flow {
+  id                    String    @id @default(uuid())
+  tenantId              String    @map("tenant_id")
+  name                  String    @db.VarChar(255)
+  description           String?   @db.Text
+  status                String    @default("draft") @db.VarChar(20)
+  triggerType           String    @map("trigger_type") @db.VarChar(50)
+  triggerConfig         Json      @default("{}") @map("trigger_config")
+  definition            Json      @default("{\"nodes\":{},\"edges\":[],\"variables\":[]}")
+  publishedDefinition   Json?     @map("published_definition")
+  currentVersion        Int       @default(1) @map("current_version")
+  stats                 Json      @default("{\"sent\":0,\"delivered\":0,\"opened\":0,\"clicked\":0}")
+  createdById           String?   @map("created_by")
+  updatedById           String?   @map("updated_by")
+  publishedAt           DateTime? @map("published_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  deletedAt             DateTime? @map("deleted_at")
+
+  tenant     Tenant          @relation(fields: [tenantId], references: [id])
+  createdBy  User?           @relation("FlowCreatedBy", fields: [createdById], references: [id])
+  updatedBy  User?           @relation("FlowUpdatedBy", fields: [updatedById], references: [id])
+  versions   FlowVersion[]
+  executions FlowExecution[]
+
+  @@index([tenantId, status])
+  @@map("flows")
+}
+
+model FlowVersion {
+  id          String   @id @default(uuid())
+  flowId      String   @map("flow_id")
+  version     Int
+  definition  Json
+  changeNotes String?  @map("change_notes") @db.Text
+  publishedBy String?  @map("published_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  flow      Flow  @relation(fields: [flowId], references: [id])
+  publisher User? @relation(fields: [publishedBy], references: [id])
+
+  @@unique([flowId, version])
+  @@map("flow_versions")
+}
+
+// ============================================================================
+// Flow Executions
+// ============================================================================
+
+model FlowExecution {
+  id            String    @id @default(uuid())
+  tenantId      String    @map("tenant_id")
+  flowId        String    @map("flow_id")
+  flowVersion   Int       @map("flow_version")
+  contactId     String    @map("contact_id")
+  status        String    @default("running") @db.VarChar(20)
+  currentNodeId String?   @map("current_node_id") @db.VarChar(100)
+  variables     Json      @default("{}")
+  history       Json      @default("[]")
+  waitingFor    Json?     @map("waiting_for")
+  error         String?   @db.Text
+  startedAt     DateTime  @default(now()) @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  flow    Flow    @relation(fields: [flowId], references: [id])
+  contact Contact @relation(fields: [contactId], references: [id])
+
+  @@index([tenantId, status])
+  @@index([contactId, status])
+  @@index([flowId, status])
+  @@map("flow_executions")
+}
+
+// ============================================================================
+// Sequences (Drip campaigns)
+// ============================================================================
+
+model Sequence {
+  id        String   @id @default(uuid())
+  tenantId  String   @map("tenant_id")
+  name      String   @db.VarChar(255)
+  status    String   @default("draft") @db.VarChar(20)
+  steps     Json     @default("[]")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tenant        Tenant                 @relation(fields: [tenantId], references: [id])
+  subscriptions SequenceSubscription[]
+
+  @@map("sequences")
+}
+
+model SequenceSubscription {
+  id          String    @id @default(uuid())
+  tenantId    String    @map("tenant_id")
+  sequenceId  String    @map("sequence_id")
+  contactId   String    @map("contact_id")
+  currentStep Int       @default(0) @map("current_step")
+  status      String    @default("active") @db.VarChar(20)
+  nextStepAt  DateTime? @map("next_step_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  sequence Sequence @relation(fields: [sequenceId], references: [id])
+  contact  Contact  @relation(fields: [contactId], references: [id])
+
+  @@unique([sequenceId, contactId])
+  @@map("sequence_subscriptions")
+}
+
+// ============================================================================
+// Broadcasts
+// ============================================================================
+
+model Broadcast {
+  id             String    @id @default(uuid())
+  tenantId       String    @map("tenant_id")
+  name           String    @db.VarChar(255)
+  channelId      String?   @map("channel_id")
+  audienceFilter Json      @default("{}") @map("audience_filter")
+  content        Json
+  status         String    @default("draft") @db.VarChar(20)
+  scheduledAt    DateTime? @map("scheduled_at")
+  startedAt      DateTime? @map("started_at")
+  completedAt    DateTime? @map("completed_at")
+  stats          Json      @default("{\"total\":0,\"sent\":0,\"delivered\":0,\"failed\":0}")
+  createdById    String?   @map("created_by")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  channel   Channel? @relation(fields: [channelId], references: [id])
+  createdBy User?    @relation(fields: [createdById], references: [id])
+
+  @@map("broadcasts")
+}
+
+// ============================================================================
+// Analytics Events
+// ============================================================================
+
+model AnalyticsEvent {
+  id         String   @id @default(uuid())
+  tenantId   String   @map("tenant_id")
+  eventType  String   @map("event_type") @db.VarChar(50)
+  entityType String?  @map("entity_type") @db.VarChar(50)
+  entityId   String?  @map("entity_id")
+  contactId  String?  @map("contact_id")
+  properties Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, eventType, createdAt(sort: Desc)])
+  @@index([entityId, eventType, createdAt(sort: Desc)])
+  @@map("analytics_events")
+}
+
+// ============================================================================
+// Media Files
+// ============================================================================
+
+model MediaFile {
+  id           String   @id @default(uuid())
+  tenantId     String   @map("tenant_id")
+  originalName String   @map("original_name") @db.VarChar(255)
+  mimeType     String   @map("mime_type") @db.VarChar(100)
+  sizeBytes    BigInt   @map("size_bytes")
+  storagePath  String   @map("storage_path") @db.VarChar(500)
+  cdnUrl       String?  @map("cdn_url") @db.VarChar(500)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@map("media_files")
+}
