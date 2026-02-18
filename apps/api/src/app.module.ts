@@ -15,6 +15,8 @@ import { BroadcastsModule } from './broadcasts/broadcasts.module'
 import { SequencesModule } from './sequences/sequences.module'
 import { AnalyticsModule } from './analytics/analytics.module'
 import { GrowthToolsModule } from './growth-tools/growth-tools.module'
+import { BillingModule } from './billing/billing.module'
+import { TeamModule } from './team/team.module'
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { GrowthToolsModule } from './growth-tools/growth-tools.module'
     SequencesModule,
     AnalyticsModule,
     GrowthToolsModule,
+    BillingModule,
+    TeamModule,
   ],
 })
 export class AppModule {}
