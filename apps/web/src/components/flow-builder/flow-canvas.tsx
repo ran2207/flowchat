@@ -10,11 +10,12 @@ import {
   BackgroundVariant,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import { useFlowBuilderStore, type FlowNode } from '@/stores/flow-builder.store'
+import { useFlowBuilderStore, type FlowNode, type FlowEdge } from '@/stores/flow-builder.store'
 import { FlowNodeMemo } from './nodes/flow-node'
 import { NodePalette } from './node-palette'
 import { NodeConfigPanel } from './panels/node-config-panel'
 import { Toolbar } from './toolbar'
+import { FlowAiAssistant } from '../ai/flow-ai-assistant'
 import { type NodeDefinition } from './node-registry'
 
 const nodeTypes: NodeTypes = {
@@ -96,6 +97,47 @@ export const FlowCanvas = () => {
     })
   }, [])
 
+  const handleAiFlowGenerated = useCallback(
+    (flow: {
+      nodes: Record<string, { id: string; type: string; config: Record<string, unknown>; position: { x: number; y: number } }>
+      edges: Array<{ source: string; target: string; sourceHandle?: string }>
+    }) => {
+      const state = useFlowBuilderStore.getState()
+      const convertedNodes: FlowNode[] = Object.values(flow.nodes).map((n) => ({
+        id: n.id,
+        type: 'flowNode',
+        position: n.position,
+        data: {
+          label: n.type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          nodeType: n.type,
+          category: n.type.startsWith('trigger_')
+            ? 'trigger'
+            : n.type.startsWith('send_')
+              ? 'message'
+              : n.type.startsWith('action_')
+                ? 'action'
+                : n.type.startsWith('ai_')
+                  ? 'ai'
+                  : 'logic',
+          config: n.config,
+        },
+      }))
+      const convertedEdges: FlowEdge[] = flow.edges.map((e, i) => ({
+        id: `edge-${i}`,
+        source: e.source,
+        target: e.target,
+        sourceHandle: e.sourceHandle,
+        type: 'smoothstep',
+        animated: true,
+      }))
+      state.loadFlow(convertedNodes, convertedEdges)
+      setTimeout(() => {
+        reactFlowInstance.current?.fitView({ padding: 0.2 })
+      }, 100)
+    },
+    [],
+  )
+
   const defaultEdgeOptions = useMemo(
     () => ({
       type: 'smoothstep',
@@ -157,6 +199,8 @@ export const FlowCanvas = () => {
 
         {selectedNodeId && <NodeConfigPanel />}
       </div>
+
+      <FlowAiAssistant onFlowGenerated={handleAiFlowGenerated} />
     </div>
   )
 }

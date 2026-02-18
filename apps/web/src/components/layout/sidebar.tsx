@@ -11,6 +11,7 @@ import {
   Settings,
   Send,
   Zap,
+  Brain,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -21,6 +22,7 @@ const navigation = [
   { name: 'Contacts', href: '/contacts', icon: Users },
   { name: 'Broadcasts', href: '/broadcasts', icon: Send },
   { name: 'Sequences', href: '/sequences', icon: Zap },
+  { name: 'AI', href: '/ai', icon: Brain },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]

@@ -1,5 +1,7 @@
 'use client'
 
+import { TextImprover } from '../../../ai/text-improver'
+
 interface Props {
   config: Record<string, unknown>
   onChange: (config: Record<string, unknown>) => void
@@ -12,7 +14,10 @@ export const SendMessageConfig = ({ config, onChange }: Props) => {
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Message Text</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-xs font-medium text-gray-600">Message Text</label>
+          <TextImprover text={text} onApply={(improved) => onChange({ text: improved })} />
+        </div>
         <textarea
           value={text}
           onChange={(e) => onChange({ text: e.target.value })}

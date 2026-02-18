@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useInboxStore, type MessageItem } from '@/stores/inbox.store'
+import { TextImprover, TextVariations } from '../ai/text-improver'
 
 function formatMessageTime(dateStr: string): string {
   return new Date(dateStr).toLocaleTimeString(undefined, {
@@ -256,6 +257,10 @@ export function MessageThread({
           </div>
 
           <div className="flex-1">
+            <div className="mb-1 flex items-center gap-1">
+              <TextImprover text={text} onApply={(improved) => setText(improved)} />
+              <TextVariations text={text} onSelect={(v) => setText(v)} />
+            </div>
             <textarea
               value={text}
               onChange={(e) => handleInputChange(e.target.value)}

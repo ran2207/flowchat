@@ -10,6 +10,7 @@ import { MessagingModule } from './messaging/messaging.module'
 import { GatewayModule } from './gateway/gateway.module'
 import { ConversationsModule } from './conversations/conversations.module'
 import { ContactsModule } from './contacts/contacts.module'
+import { AiModule } from './ai/ai.module'
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ContactsModule } from './contacts/contacts.module'
     GatewayModule,
     ConversationsModule,
     ContactsModule,
+    AiModule,
   ],
 })
 export class AppModule {}
