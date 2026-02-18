@@ -1,0 +1,305 @@
+import {
+  MessageSquare,
+  Image,
+  Video,
+  LayoutGrid,
+  MousePointerClick,
+  Hash,
+  AtSign,
+  Globe,
+  Clock,
+  Zap,
+  Tag,
+  X,
+  FileText,
+  Send,
+  UserPlus,
+  GitBranch,
+  Shuffle,
+  Timer,
+  MessageCircle,
+  CalendarClock,
+  Brain,
+  Bot,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react'
+
+export type NodeCategory = 'trigger' | 'message' | 'action' | 'logic' | 'ai'
+
+export interface NodeDefinition {
+  type: string
+  label: string
+  category: NodeCategory
+  icon: LucideIcon
+  description: string
+  color: string
+  defaultConfig: Record<string, unknown>
+  outputs: string[]
+}
+
+export const NODE_CATEGORIES: Record<NodeCategory, { label: string; color: string }> = {
+  trigger: { label: 'Triggers', color: '#22c55e' },
+  message: { label: 'Messages', color: '#3b82f6' },
+  action: { label: 'Actions', color: '#f59e0b' },
+  logic: { label: 'Logic', color: '#8b5cf6' },
+  ai: { label: 'AI', color: '#ec4899' },
+}
+
+export const NODE_DEFINITIONS: NodeDefinition[] = [
+  // === Triggers ===
+  {
+    type: 'keyword_trigger',
+    label: 'Keyword Trigger',
+    category: 'trigger',
+    icon: Hash,
+    description: 'Triggers when a user sends a specific keyword',
+    color: '#22c55e',
+    defaultConfig: { keywords: [], matchType: 'contains' },
+    outputs: ['default'],
+  },
+  {
+    type: 'comment_trigger',
+    label: 'Comment Trigger',
+    category: 'trigger',
+    icon: AtSign,
+    description: 'Triggers when a user comments on a post',
+    color: '#22c55e',
+    defaultConfig: { keywords: [], platform: 'instagram', postId: '' },
+    outputs: ['default'],
+  },
+  {
+    type: 'webhook_trigger',
+    label: 'Webhook Trigger',
+    category: 'trigger',
+    icon: Globe,
+    description: 'Triggers from an external webhook call',
+    color: '#22c55e',
+    defaultConfig: {},
+    outputs: ['default'],
+  },
+  {
+    type: 'schedule_trigger',
+    label: 'Schedule Trigger',
+    category: 'trigger',
+    icon: Clock,
+    description: 'Triggers at a scheduled date/time',
+    color: '#22c55e',
+    defaultConfig: { cron: '', timezone: 'UTC' },
+    outputs: ['default'],
+  },
+  {
+    type: 'manual_trigger',
+    label: 'Manual / API Trigger',
+    category: 'trigger',
+    icon: Zap,
+    description: 'Triggers manually or via API',
+    color: '#22c55e',
+    defaultConfig: {},
+    outputs: ['default'],
+  },
+
+  // === Messages ===
+  {
+    type: 'send_message',
+    label: 'Send Message',
+    category: 'message',
+    icon: MessageSquare,
+    description: 'Send a text message to the contact',
+    color: '#3b82f6',
+    defaultConfig: { text: '', typingDelay: 0 },
+    outputs: ['default'],
+  },
+  {
+    type: 'send_image',
+    label: 'Send Image',
+    category: 'message',
+    icon: Image,
+    description: 'Send an image with optional caption',
+    color: '#3b82f6',
+    defaultConfig: { imageUrl: '', caption: '' },
+    outputs: ['default'],
+  },
+  {
+    type: 'send_video',
+    label: 'Send Video',
+    category: 'message',
+    icon: Video,
+    description: 'Send a video with optional caption',
+    color: '#3b82f6',
+    defaultConfig: { videoUrl: '', caption: '' },
+    outputs: ['default'],
+  },
+  {
+    type: 'send_carousel',
+    label: 'Send Carousel',
+    category: 'message',
+    icon: LayoutGrid,
+    description: 'Send a carousel of cards',
+    color: '#3b82f6',
+    defaultConfig: { cards: [] },
+    outputs: ['default'],
+  },
+  {
+    type: 'send_buttons',
+    label: 'Send Buttons',
+    category: 'message',
+    icon: MousePointerClick,
+    description: 'Send a message with action buttons',
+    color: '#3b82f6',
+    defaultConfig: { text: '', buttons: [] },
+    outputs: ['default', 'button_1', 'button_2', 'button_3'],
+  },
+
+  // === Actions ===
+  {
+    type: 'add_tag',
+    label: 'Add Tag',
+    category: 'action',
+    icon: Tag,
+    description: 'Add a tag to the contact',
+    color: '#f59e0b',
+    defaultConfig: { tagName: '' },
+    outputs: ['default'],
+  },
+  {
+    type: 'remove_tag',
+    label: 'Remove Tag',
+    category: 'action',
+    icon: X,
+    description: 'Remove a tag from the contact',
+    color: '#f59e0b',
+    defaultConfig: { tagName: '' },
+    outputs: ['default'],
+  },
+  {
+    type: 'set_custom_field',
+    label: 'Set Custom Field',
+    category: 'action',
+    icon: FileText,
+    description: 'Set a custom field value on the contact',
+    color: '#f59e0b',
+    defaultConfig: { fieldKey: '', value: '' },
+    outputs: ['default'],
+  },
+  {
+    type: 'http_request',
+    label: 'HTTP Request',
+    category: 'action',
+    icon: Send,
+    description: 'Make an external API call',
+    color: '#f59e0b',
+    defaultConfig: { method: 'POST', url: '', headers: {}, body: '' },
+    outputs: ['success', 'failure'],
+  },
+  {
+    type: 'assign_to_agent',
+    label: 'Assign to Agent',
+    category: 'action',
+    icon: UserPlus,
+    description: 'Assign conversation to a live chat agent',
+    color: '#f59e0b',
+    defaultConfig: { agentId: '', groupId: '' },
+    outputs: ['default'],
+  },
+  {
+    type: 'go_to_flow',
+    label: 'Go to Flow',
+    category: 'action',
+    icon: GitBranch,
+    description: 'Jump to another flow',
+    color: '#f59e0b',
+    defaultConfig: { flowId: '' },
+    outputs: [],
+  },
+
+  // === Logic ===
+  {
+    type: 'condition',
+    label: 'Condition',
+    category: 'logic',
+    icon: GitBranch,
+    description: 'Branch based on conditions',
+    color: '#8b5cf6',
+    defaultConfig: { rules: [], logicalOperator: 'AND' },
+    outputs: ['true', 'false'],
+  },
+  {
+    type: 'random_split',
+    label: 'Random Split',
+    category: 'logic',
+    icon: Shuffle,
+    description: 'A/B test with random traffic split',
+    color: '#8b5cf6',
+    defaultConfig: { variants: [{ label: 'A', weight: 50 }, { label: 'B', weight: 50 }] },
+    outputs: ['variant_a', 'variant_b'],
+  },
+  {
+    type: 'smart_delay',
+    label: 'Smart Delay',
+    category: 'logic',
+    icon: Timer,
+    description: 'Wait before continuing the flow',
+    color: '#8b5cf6',
+    defaultConfig: { duration: 1, unit: 'hours' },
+    outputs: ['default'],
+  },
+  {
+    type: 'wait_for_input',
+    label: 'Wait for Input',
+    category: 'logic',
+    icon: MessageCircle,
+    description: 'Wait for the user to reply',
+    color: '#8b5cf6',
+    defaultConfig: { timeout: 24, timeoutUnit: 'hours', saveToField: '' },
+    outputs: ['received', 'timeout'],
+  },
+  {
+    type: 'datetime_condition',
+    label: 'Date/Time Condition',
+    category: 'logic',
+    icon: CalendarClock,
+    description: 'Branch based on date or time',
+    color: '#8b5cf6',
+    defaultConfig: { type: 'time_of_day', startTime: '09:00', endTime: '17:00' },
+    outputs: ['match', 'no_match'],
+  },
+
+  // === AI ===
+  {
+    type: 'ai_intent',
+    label: 'AI Intent Match',
+    category: 'ai',
+    icon: Brain,
+    description: 'Match user message to an intent using AI',
+    color: '#ec4899',
+    defaultConfig: { intents: [], fallbackOutput: 'no_match' },
+    outputs: ['matched', 'no_match'],
+  },
+  {
+    type: 'ai_reply',
+    label: 'AI Reply',
+    category: 'ai',
+    icon: Bot,
+    description: 'Generate an AI-powered reply',
+    color: '#ec4899',
+    defaultConfig: { prompt: '', model: 'claude', maxTokens: 500 },
+    outputs: ['default'],
+  },
+  {
+    type: 'ai_step',
+    label: 'AI Step',
+    category: 'ai',
+    icon: Sparkles,
+    description: 'Hand conversation to AI for multi-turn interaction',
+    color: '#ec4899',
+    defaultConfig: { prompt: '', goal: '', maxTurns: 5 },
+    outputs: ['goal_reached', 'max_turns', 'handoff'],
+  },
+]
+
+export const getNodeDefinition = (type: string): NodeDefinition | undefined =>
+  NODE_DEFINITIONS.find((n) => n.type === type)
+
+export const getNodesByCategory = (category: NodeCategory): NodeDefinition[] =>
+  NODE_DEFINITIONS.filter((n) => n.category === category)
