@@ -6,7 +6,6 @@ import {
   Background,
   Controls,
   MiniMap,
-  type ReactFlowInstance,
   type NodeTypes,
   BackgroundVariant,
 } from '@xyflow/react'
@@ -23,7 +22,8 @@ const nodeTypes: NodeTypes = {
 }
 
 export const FlowCanvas = () => {
-  const reactFlowInstance = useRef<ReactFlowInstance | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const reactFlowInstance = useRef<any>(null)
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
 
   const nodes = useFlowBuilderStore((s) => s.nodes)
@@ -70,7 +70,8 @@ export const FlowCanvas = () => {
     [addNode],
   )
 
-  const onInit = useCallback((instance: ReactFlowInstance) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onInit = useCallback((instance: any) => {
     reactFlowInstance.current = instance
   }, [])
 

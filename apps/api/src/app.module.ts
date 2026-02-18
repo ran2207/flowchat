@@ -7,6 +7,9 @@ import { ChannelsModule } from './channels/channels.module'
 import { WebhooksModule } from './webhooks/webhooks.module'
 import { QueueModule } from './queue/queue.module'
 import { MessagingModule } from './messaging/messaging.module'
+import { GatewayModule } from './gateway/gateway.module'
+import { ConversationsModule } from './conversations/conversations.module'
+import { ContactsModule } from './contacts/contacts.module'
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { MessagingModule } from './messaging/messaging.module'
     ChannelsModule,
     WebhooksModule,
     MessagingModule,
+    GatewayModule,
+    ConversationsModule,
+    ContactsModule,
   ],
 })
 export class AppModule {}
