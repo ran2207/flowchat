@@ -38,8 +38,8 @@ export class BroadcastsService {
         tenantId,
         name: data.name,
         channelId: data.channelId ?? null,
-        content: data.content,
-        audienceFilter: (data.audienceFilter ?? {}) as Record<string, unknown>,
+        content: data.content as object,
+        audienceFilter: (data.audienceFilter ?? {}) as object,
         scheduledAt: data.scheduledAt ?? null,
         createdById: data.createdById ?? null,
         status: data.scheduledAt ? 'scheduled' : 'draft',
@@ -208,7 +208,7 @@ export class BroadcastsService {
 
     await prisma.broadcast.update({
       where: { id: broadcastId },
-      data: { stats: stats as unknown as Record<string, unknown> },
+      data: { stats: stats as unknown as object },
     })
 
     const content = broadcast.content as Record<string, unknown>
@@ -242,7 +242,7 @@ export class BroadcastsService {
       data: {
         status: finalStatus,
         completedAt: new Date(),
-        stats: stats as unknown as Record<string, unknown>,
+        stats: stats as unknown as object,
       },
     })
 

@@ -67,9 +67,9 @@ export class ChannelsService {
         platform: dto.platform,
         platformAccountId,
         name: dto.name,
-        credentials: dto.credentials,
+        credentials: dto.credentials as object,
         webhookSecret,
-        settings: dto.settings ?? {},
+        settings: (dto.settings ?? {}) as object,
       },
     })
 

@@ -277,7 +277,7 @@ export class AnalyticsService {
         entityType: data.entityType ?? null,
         entityId: data.entityId ?? null,
         contactId: data.contactId ?? null,
-        properties: data.properties ?? {},
+        properties: (data.properties ?? {}) as object,
       },
     })
   }

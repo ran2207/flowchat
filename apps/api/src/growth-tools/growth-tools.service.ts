@@ -155,7 +155,7 @@ export class GrowthToolsService {
 
     await prisma.tenant.update({
       where: { id: tenantId },
-      data: { settings },
+      data: { settings: settings as object },
     })
 
     return updated

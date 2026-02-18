@@ -15,8 +15,9 @@ export async function apiFetch<T>(
     ...(init.headers as Record<string, string>),
   }
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`
+  const authToken = token ?? (typeof window !== 'undefined' ? localStorage.getItem('token') : null)
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`
   }
 
   const response = await fetch(`${API_BASE}${path}`, {

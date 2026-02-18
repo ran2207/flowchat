@@ -110,7 +110,7 @@ export class ContactService {
 
     await prisma.contact.update({
       where: { id: contactId },
-      data: { customFields: fields },
+      data: { customFields: fields as object },
     })
   }
 }

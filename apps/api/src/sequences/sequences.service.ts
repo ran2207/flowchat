@@ -25,7 +25,7 @@ export class SequencesService {
       data: {
         tenantId,
         name: data.name,
-        steps: (data.steps ?? []) as unknown as Record<string, unknown>[],
+        steps: (data.steps ?? []) as unknown as object[],
         status: 'draft',
       },
     })

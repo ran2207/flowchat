@@ -218,7 +218,7 @@ export class IntegrationsService {
 
     await prisma.tenant.update({
       where: { id: tenantId },
-      data: { settings },
+      data: { settings: settings as object },
     })
   }
 
@@ -233,7 +233,7 @@ export class IntegrationsService {
 
     await prisma.tenant.update({
       where: { id: tenantId },
-      data: { settings },
+      data: { settings: settings as object },
     })
   }
 
@@ -278,7 +278,7 @@ export class IntegrationsService {
 
     await prisma.tenant.update({
       where: { id: tenantId },
-      data: { settings },
+      data: { settings: settings as object },
     })
   }
 
@@ -293,7 +293,7 @@ export class IntegrationsService {
 
     await prisma.tenant.update({
       where: { id: tenantId },
-      data: { settings },
+      data: { settings: settings as object },
     })
   }
 

@@ -55,7 +55,7 @@ export class KnowledgeBaseService {
           content,
           embedding,
           metadata,
-        },
+        } as object,
       },
     })
 

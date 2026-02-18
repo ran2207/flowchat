@@ -8,12 +8,16 @@ import { QueueService } from './queue.service'
   providers: [
     {
       provide: 'REDIS_CONNECTION',
-      useFactory: (configService: ConfigService) => ({
-        host: configService.get<string>('REDIS_HOST', 'localhost'),
-        port: configService.get<number>('REDIS_PORT', 6379),
-        password: configService.get<string>('REDIS_PASSWORD', ''),
-        maxRetriesPerRequest: null,
-      }),
+      useFactory: (configService: ConfigService) => {
+        const useTls = configService.get<string>('REDIS_TLS', 'false') === 'true'
+        return {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: configService.get<number>('REDIS_PORT', 6379),
+          password: configService.get<string>('REDIS_PASSWORD', ''),
+          maxRetriesPerRequest: null,
+          ...(useTls ? { tls: {} } : {}),
+        }
+      },
       inject: [ConfigService],
     },
     QueueService,

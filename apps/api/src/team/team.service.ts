@@ -125,7 +125,7 @@ export class TeamService {
 
     await prisma.tenant.update({
       where: { id: tenantId },
-      data: { settings },
+      data: { settings: settings as object },
     })
 
     this.logger.log(`Invite sent to ${email} for tenant ${tenantId} with role ${role}`)
@@ -188,7 +188,7 @@ export class TeamService {
 
     await prisma.tenant.update({
       where: { id: foundTenantId },
-      data: { settings },
+      data: { settings: settings as object },
     })
 
     return { userId: user.id, tenantId: foundTenantId }
@@ -226,7 +226,7 @@ export class TeamService {
 
     await prisma.tenant.update({
       where: { id: tenantId },
-      data: { settings },
+      data: { settings: settings as object },
     })
   }
 

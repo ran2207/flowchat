@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { prisma } from '@flowchat/database'
+import { Prisma } from '@prisma/client'
 import type { NormalizedIncomingMessage } from '@flowchat/shared'
 import { QueueService, QUEUE_NAMES } from '../../queue'
 
@@ -30,7 +31,7 @@ export class FlowTriggerService {
         tenantId,
         status: 'published',
         deletedAt: null,
-        publishedDefinition: { not: null },
+        publishedDefinition: { not: Prisma.DbNull },
       },
       select: {
         id: true,

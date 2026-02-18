@@ -79,7 +79,7 @@ export class FlowExecutionProcessor implements OnModuleInit, OnModuleDestroy {
         contactId,
         flowVersion,
         status: 'running',
-        variables: this.initializeVariables(flowDef.variables),
+        variables: this.initializeVariables(flowDef.variables) as object,
         history: [],
       },
     })

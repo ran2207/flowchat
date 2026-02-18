@@ -151,7 +151,7 @@ Keep responses concise and helpful. Do not use markdown formatting.`
 
     await prisma.tenant.update({
       where: { id: tenantId },
-      data: { settings },
+      data: { settings: settings as object },
     })
 
     return updated

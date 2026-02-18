@@ -43,7 +43,7 @@ export class FlowsService {
         name: dto.name,
         description: dto.description,
         triggerType: dto.triggerType,
-        triggerConfig: dto.triggerConfig ?? {},
+        triggerConfig: (dto.triggerConfig ?? {}) as object,
         createdById: userId,
         updatedById: userId,
       },
